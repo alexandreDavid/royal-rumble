@@ -46,13 +46,21 @@ class RoyalName {
   RoyalName(final String fullname) {
     this.fullname = fullname;
     final int i = fullname.lastIndexOf(" ");
-    if (i != -1) {
+    if (i != -1 && checkRomanNumber(fullname.substring(i + 1))) {
       this.characterName = fullname.substring(0, i);
       this.romanNumber = fullname.substring(i + 1);
     } else {
       this.characterName = fullname;
     }
-    
+  }
+
+  private static Boolean checkRomanNumber(String romanNumber) {
+    for (int i = 0; i < romanNumber.length(); i++) {
+      if (RomanChars.getByAlpha(String.valueOf(romanNumber.charAt(i))) == null) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -75,7 +83,7 @@ class RoyalName {
     }
 
     if (this.romanNumber == null) {
-      return null;
+      return 0;
     }
 
     // First action
