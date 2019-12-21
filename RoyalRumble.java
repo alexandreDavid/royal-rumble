@@ -6,67 +6,92 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 class RoyalName {
-  String fullname;
-  String characterName;
-  String romanNumber; 
+  public String fullname;
+  public String characterName;
+  public String romanNumber;
+  private Integer integerFromRoman;
 
-  RoyalName (String fullname) {
-      this.fullname = fullname;
-      int i = fullname.lastIndexOf(" ");
-      this.characterName = fullname.substring(0, i);
-      this.romanNumber = fullname.substring(i + 1);
+  RoyalName(final String fullname) {
+    this.fullname = fullname;
+    final int i = fullname.lastIndexOf(" ");
+    this.characterName = fullname.substring(0, i);
+    this.romanNumber = fullname.substring(i + 1);
   }
 
-  Integer getIntegerFromRoman() {
+  private static Map<String, Integer> decodeOrder = new HashMap<>();
 
-    Map<String, Integer> decodeOrder = new HashMap<>();
+  static {
     decodeOrder.put("I", 1);
     decodeOrder.put("V", 2);
     decodeOrder.put("X", 3);
     decodeOrder.put("L", 4);
+  }
 
-    Map<Integer, Integer> decode = new HashMap<>();
+  private static Map<Integer, Integer> decode = new HashMap<>();
+
+  static {
     decode.put(1, 1);
     decode.put(2, 5);
     decode.put(3, 10);
     decode.put(4, 50);
+  }
 
+  /**
+   * 2 differents actions. The first one is to merge numbers per group. A group
+   * represents the sum of all the signs in a row equal or just above the previous
+   * one in term of index. Example: if XII => first group is X and second is II
+   * because X and I are separated of 2 levels. The second is to know if the group
+   * has to be added or substracted from the result. For that, we compare each
+   * value with the next one. If the next is higher so we substract from the
+   * result. Example: XLVII => 3 groups 10, 50 and 7 => 10 < 50 and 50 > 7 so -10
+   * + 50 + 7 = 47
+   * 
+   * @return Integer
+   */
+  Integer getIntegerFromRoman() {
+
+    // If already calculated not necessary
+    if (this.integerFromRoman != null) {
+      return this.integerFromRoman;
+    }
+
+    // First action
     String c = String.valueOf(this.romanNumber.charAt(0));
     Integer prev = decodeOrder.get(c);
-    Integer tot = decode.get(prev);
-    List<Integer> total = new ArrayList<Integer>();
-    for (int i = 1 ; i < this.romanNumber.length() ; i++){
+    Integer groupSum = decode.get(prev);
+    List<Integer> allGroups = new ArrayList<Integer>();
+    for (int i = 1; i < this.romanNumber.length(); i++) {
       c = String.valueOf(this.romanNumber.charAt(i));
       Integer val = decodeOrder.get(c);
       // If idx n-1 === idx N || idx - 1 N
       if (prev.equals(val) || prev.equals(val + 1)) {
-        tot = tot + decode.get(val);
+        groupSum = groupSum + decode.get(val);
       } else {
-        total.add(tot);
-        tot = decode.get(val);
+        allGroups.add(groupSum);
+        groupSum = decode.get(val);
       }
       prev = val;
     }
-    total.add(tot);
+    allGroups.add(groupSum);
 
-    Integer toto = 0;
-    for (int i = 0; i < total.size() - 1; i++) {
-      if (total.get(i) < total.get(i+1)) {
-        toto = toto - total.get(i);
+    // Second action
+    this.integerFromRoman = 0;
+    for (int i = 0; i < allGroups.size() - 1; i++) {
+      if (allGroups.get(i) < allGroups.get(i + 1)) {
+        this.integerFromRoman = this.integerFromRoman - allGroups.get(i);
       } else {
-        toto = toto + total.get(i);
+        this.integerFromRoman = this.integerFromRoman + allGroups.get(i);
       }
     }
-    toto = toto + total.get(total.size() - 1);
-    System.out.println(toto);
-    return toto;
+    this.integerFromRoman = this.integerFromRoman + allGroups.get(allGroups.size() - 1);
+    return this.integerFromRoman;
   }
 }
 
 public class RoyalRumble {
   public List<String> getSortedList(final List<String> names) {
 
-    List<RoyalName> royalNameList = new ArrayList<RoyalName>() ;
+    final List<RoyalName> royalNameList = new ArrayList<RoyalName>();
     names.forEach(name -> royalNameList.add(new RoyalName(name)));
 
     Collections.sort(royalNameList, (royalName1, royalName2) -> {
