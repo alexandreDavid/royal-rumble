@@ -2,8 +2,44 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
+
+class RomanChar {
+  public String alpha;
+  public Integer index;
+  public Integer numVal;
+
+  RomanChar(final String alpha, final Integer index, final Integer numVal) {
+    this.alpha = alpha;
+    this.index = index;
+    this.numVal = numVal;
+  }
+}
+
+class RomanChars {
+  public ArrayList<RomanChar> romanChars = new ArrayList<RomanChar>();
+
+  RomanChars() {
+    this.romanChars.add(new RomanChar("I", 1, 1));
+    this.romanChars.add(new RomanChar("V", 2, 5));
+    this.romanChars.add(new RomanChar("X", 3, 10));
+    this.romanChars.add(new RomanChar("L", 4, 50));
+  }
+
+  public RomanChar getByAlpha(String alpha) {
+    return romanChars.stream().filter(r -> alpha.equals(r.alpha))
+      .findAny()
+      .orElse(null);
+  }
+
+  public RomanChar getByIndex(Integer index) {
+    return romanChars.stream().filter(r -> index.equals(r.index))
+      .findAny()
+      .orElse(null);
+  }
+}
 
 class RoyalName {
   public String fullname;
@@ -18,23 +54,7 @@ class RoyalName {
     this.romanNumber = fullname.substring(i + 1);
   }
 
-  private static Map<String, Integer> decodeOrder = new HashMap<>();
-
-  static {
-    decodeOrder.put("I", 1);
-    decodeOrder.put("V", 2);
-    decodeOrder.put("X", 3);
-    decodeOrder.put("L", 4);
-  }
-
-  private static Map<Integer, Integer> decode = new HashMap<>();
-
-  static {
-    decode.put(1, 1);
-    decode.put(2, 5);
-    decode.put(3, 10);
-    decode.put(4, 50);
-  }
+  private static RomanChars romanChars = new RomanChars();
 
   /**
    * 2 differents actions. The first one is to merge numbers per group. A group
@@ -57,18 +77,19 @@ class RoyalName {
 
     // First action
     String c = String.valueOf(this.romanNumber.charAt(0));
-    Integer prev = decodeOrder.get(c);
-    Integer groupSum = decode.get(prev);
+    
+    RomanChar prev = romanChars.getByAlpha(c);
+    Integer groupSum = prev.numVal;
     List<Integer> allGroups = new ArrayList<Integer>();
     for (int i = 1; i < this.romanNumber.length(); i++) {
       c = String.valueOf(this.romanNumber.charAt(i));
-      Integer val = decodeOrder.get(c);
+      RomanChar val = romanChars.getByAlpha(c);
       // If idx n-1 === idx N || idx - 1 N
-      if (prev.equals(val) || prev.equals(val + 1)) {
-        groupSum = groupSum + decode.get(val);
+      if (prev.index.equals(val.index) || prev.index.equals(val.index + 1)) {
+        groupSum = groupSum + val.numVal;
       } else {
         allGroups.add(groupSum);
-        groupSum = decode.get(val);
+        groupSum = val.numVal;
       }
       prev = val;
     }
