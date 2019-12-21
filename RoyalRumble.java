@@ -19,25 +19,21 @@ class RomanChar {
 }
 
 class RomanChars {
-  public ArrayList<RomanChar> romanChars = new ArrayList<RomanChar>();
 
-  RomanChars() {
-    this.romanChars.add(new RomanChar("I", 1, 1));
-    this.romanChars.add(new RomanChar("V", 2, 5));
-    this.romanChars.add(new RomanChar("X", 3, 10));
-    this.romanChars.add(new RomanChar("L", 4, 50));
-  }
+  static final List<RomanChar> romanChars = new ArrayList<RomanChar>() {
 
-  public RomanChar getByAlpha(String alpha) {
-    return romanChars.stream().filter(r -> alpha.equals(r.alpha))
-      .findAny()
-      .orElse(null);
-  }
+    private static final long serialVersionUID = 1L;
 
-  public RomanChar getByIndex(Integer index) {
-    return romanChars.stream().filter(r -> index.equals(r.index))
-      .findAny()
-      .orElse(null);
+    {
+      add(new RomanChar("I", 1, 1));
+      add(new RomanChar("V", 2, 5));
+      add(new RomanChar("X", 3, 10));
+      add(new RomanChar("L", 4, 50));
+    }
+  };
+
+  public static RomanChar getByAlpha(String alpha) {
+    return romanChars.stream().filter(r -> alpha.equals(r.alpha)).findAny().orElse(null);
   }
 }
 
@@ -53,8 +49,6 @@ class RoyalName {
     this.characterName = fullname.substring(0, i);
     this.romanNumber = fullname.substring(i + 1);
   }
-
-  private static RomanChars romanChars = new RomanChars();
 
   /**
    * 2 differents actions. The first one is to merge numbers per group. A group
@@ -77,13 +71,13 @@ class RoyalName {
 
     // First action
     String c = String.valueOf(this.romanNumber.charAt(0));
-    
-    RomanChar prev = romanChars.getByAlpha(c);
+
+    RomanChar prev = RomanChars.getByAlpha(c);
     Integer groupSum = prev.numVal;
     List<Integer> allGroups = new ArrayList<Integer>();
     for (int i = 1; i < this.romanNumber.length(); i++) {
       c = String.valueOf(this.romanNumber.charAt(i));
-      RomanChar val = romanChars.getByAlpha(c);
+      RomanChar val = RomanChars.getByAlpha(c);
       // If idx n-1 === idx N || idx - 1 N
       if (prev.index.equals(val.index) || prev.index.equals(val.index + 1)) {
         groupSum = groupSum + val.numVal;
