@@ -46,8 +46,13 @@ class RoyalName {
   RoyalName(final String fullname) {
     this.fullname = fullname;
     final int i = fullname.lastIndexOf(" ");
-    this.characterName = fullname.substring(0, i);
-    this.romanNumber = fullname.substring(i + 1);
+    if (i != -1) {
+      this.characterName = fullname.substring(0, i);
+      this.romanNumber = fullname.substring(i + 1);
+    } else {
+      this.characterName = fullname;
+    }
+    
   }
 
   /**
@@ -67,6 +72,10 @@ class RoyalName {
     // If already calculated not necessary
     if (this.integerFromRoman != null) {
       return this.integerFromRoman;
+    }
+
+    if (this.romanNumber == null) {
+      return null;
     }
 
     // First action
